@@ -1,0 +1,14 @@
+prefix=/home/ubuntu/github/FFmpeg/build/armeabi-v7a
+exec_prefix=${prefix}
+libdir=/home/ubuntu/github/FFmpeg/build/armeabi-v7a/lib
+includedir=/home/ubuntu/github/FFmpeg/build/armeabi-v7a/include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 8.37.100
+Requires: 
+Requires.private: libswscale >= 6.6.100, libavformat >= 59.23.100, libavcodec >= 59.27.100, libswresample >= 4.6.100, libavutil >= 57.24.101
+Conflicts:
+Libs: -L${libdir}  -lavfilter 
+Libs.private: -pthread -lm -latomic
+Cflags: -I${includedir}
