@@ -1,7 +1,7 @@
-prefix=/home/ubuntu/github/FFmpeg/build/x86-64
+prefix=/home/ubuntu/github/FFmpeg/build/x86_64
 exec_prefix=${prefix}
-libdir=/home/ubuntu/github/FFmpeg/build/x86-64/lib
-includedir=/home/ubuntu/github/FFmpeg/build/x86-64/include
+libdir=/home/ubuntu/github/FFmpeg/build/x86_64/lib
+includedir=/home/ubuntu/github/FFmpeg/build/x86_64/include
 
 Name: libavcodec
 Description: FFmpeg codec library
