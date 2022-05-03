@@ -1,11 +1,11 @@
-package io.github.zy3274311.ffmpegmedia;
+package io.github.zy3274311.ffmedia;
 
-import io.github.zy3274311.ffmpegmedia.demuxer.DemuxerImpl;
+import io.github.zy3274311.ffmedia.demuxer.DemuxerImpl;
 
 public class FFmpegEngine {
-    // Used to load the 'ffmpegmedia' library on application startup.
+    // Used to load the 'ffmedia' library on application startup.
     static {
-        System.loadLibrary("ffmpegmedia");
+        System.loadLibrary("ffmedia");
     }
 
     public native String stringFromJNI();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.zy3274311.ffmpegmedia">
-
+    package="io.github.zy3274311.ffmedia">
+    <permission android:name="android.Manifest.permission.INTERNET"/>
 </manifest>

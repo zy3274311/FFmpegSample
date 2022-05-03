@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.10.2)
 
 # Declares and names the project.
 
-project("ffmpegmedia")
+project("ffmedia")
 
 # configure lib dir
 set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../distribution)
@@ -47,16 +47,17 @@ set_target_properties(swresample PROPERTIES IMPORTED_LOCATION
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 add_library( # Sets the name of the library.
-        ffmpegmedia
+        ffmedia
 
         # Sets the library as a shared library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        ffmpegmedia.cpp)
+        ffmedia.cpp
+        FFDemuxer.cpp)
 
 # add ffmpeg include
-target_include_directories(ffmpegmedia PUBLIC ${FFMPEG_DIR}/include)
+target_include_directories(ffmedia PUBLIC ${FFMPEG_DIR}/include)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -76,7 +77,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        ffmpegmedia
+        ffmedia
 
         #增加ffmpeg库，注意顺序（具体看lib/pkgconfig的依赖关系）
         avdevice

@@ -1,4 +1,4 @@
-package io.github.zy3274311.ffmpegmedia;
+package io.github.zy3274311.ffmedia;
 
 import android.content.Context;
 

@@ -1,25 +1,31 @@
-package io.github.zy3274311.ffmpegmedia.demuxer;
+package io.github.zy3274311.ffmedia.demuxer;
 
 import android.net.Uri;
 
 import java.nio.ByteBuffer;
 
-import io.github.zy3274311.ffmpegmedia.Demuxer;
-import io.github.zy3274311.ffmpegmedia.Format;
+import io.github.zy3274311.ffmedia.Demuxer;
+import io.github.zy3274311.ffmedia.Format;
 
 public class DemuxerImpl implements Demuxer {
+    private final long ptr;
+    public DemuxerImpl() {
+        ptr = _setUp();
+    }
+
     @Override
     public void setDataSource(Uri uri) {
-
+        _setDataSource(ptr, uri.toString());
     }
 
     @Override
     public int getTrackCount() {
-        return 0;
+        return _getTrackCount(ptr);
     }
 
     @Override
     public Format getTrackFormat(int index) {
+        _getTrackFormat(ptr, index);
         return null;
     }
 
@@ -55,6 +61,16 @@ public class DemuxerImpl implements Demuxer {
 
     @Override
     public void release() {
-
+        _release(ptr);
     }
+
+    private native long _setUp();
+
+    private native void _setDataSource(long ptr, String url);
+
+    private native int _getTrackCount(long ptr);
+
+    private native void _getTrackFormat(long ptr, int index);
+
+    private native void _release(long ptr);
 }
