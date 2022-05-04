@@ -9,7 +9,7 @@ extern "C"{
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_io_github_zy3274311_ffmedia_FFmpegEngine_stringFromJNI(JNIEnv *env, jobject thiz) {
+Java_io_github_zy3274311_ffmedia_FFMedia_stringFromJNI(JNIEnv *env, jobject thiz) {
     const char *conf = avformat_configuration();
     return env->NewStringUTF(conf);
 }

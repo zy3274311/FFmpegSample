@@ -2,7 +2,7 @@ package io.github.zy3274311.ffmedia;
 
 import io.github.zy3274311.ffmedia.demuxer.DemuxerImpl;
 
-public class FFmpegEngine {
+public class FFMedia {
     // Used to load the 'ffmedia' library on application startup.
     static {
         System.loadLibrary("ffmedia");

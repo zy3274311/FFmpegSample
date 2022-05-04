@@ -66,10 +66,20 @@ void FFDemuxer::getTrackFormat(int index) {
     }
     int width = streams->codecpar->width;
     int height = streams->codecpar->height;
+    int profile = streams->codecpar->profile;
 
     AVCodecID codec_id = streams->codecpar->codec_id;
     const char *codec_name = avcodec_get_name(codec_id);
     const char *type = av_get_media_type_string(codec_type);
+    const char *profile_name = avcodec_profile_name(codec_id, profile);
 
-    LOGE(FFMEDIA_TAG, "codecpar width:%d height:%d format:%d codec_type:%s codec_name:%s", width, height, format, type, codec_name);
+    LOGE(FFMEDIA_TAG,
+         "codecpar\n"
+         "width:%d \n"
+         "height:%d \n"
+         "format:%d \n"
+         "codec_type:%s \n"
+         "codec_name:%s\n"
+         "profile_name:%s",
+         width, height, format, type, codec_name, profile_name);
 }

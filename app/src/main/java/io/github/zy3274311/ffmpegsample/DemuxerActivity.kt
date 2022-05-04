@@ -1,14 +1,14 @@
 package io.github.zy3274311.ffmpegsample
 
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import io.github.zy3274311.ffmedia.FFmpegEngine
+import androidx.appcompat.app.AppCompatActivity
+import io.github.zy3274311.ffmedia.FFMedia
 import java.io.File
 
 class DemuxerActivity : AppCompatActivity() {
-    private val demuxer = FFmpegEngine.createDemuxer()
+    private val demuxer = FFMedia.createDemuxer()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_demuxer)
