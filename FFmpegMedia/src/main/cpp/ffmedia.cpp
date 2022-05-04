@@ -43,6 +43,7 @@ JNIEXPORT void JNICALL
 Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1release(JNIEnv *env, jobject thiz,
                                                                jlong ptr) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
+    demuxer->free();
     delete demuxer;
 }
 extern "C"
@@ -51,4 +52,14 @@ Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1getTrackFormat(JNIEnv *en
                                                                       jlong ptr, jint index) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
     demuxer->getTrackFormat(index);
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1readSampleData(JNIEnv *env, jobject thiz,
+                                                                      jlong ptr,
+                                                                      jobject byte_buf,
+                                                                      jint offset) {
+    auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
+    return demuxer->readSampleData();;
+
 }

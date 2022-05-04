@@ -22,6 +22,10 @@ extern "C" {
         int getTrackCount();
 
         void getTrackFormat(int index);
+
+        int readSampleData();
+
+        void free();
     };
 }
 #endif //FFMPEGSAMPLE_FFDEMUXER_H

@@ -5,7 +5,7 @@ import android.net.Uri;
 import java.nio.ByteBuffer;
 
 import io.github.zy3274311.ffmedia.Demuxer;
-import io.github.zy3274311.ffmedia.Format;
+import io.github.zy3274311.ffmedia.FFMediaFormat;
 
 public class DemuxerImpl implements Demuxer {
     private final long ptr;
@@ -24,7 +24,7 @@ public class DemuxerImpl implements Demuxer {
     }
 
     @Override
-    public Format getTrackFormat(int index) {
+    public FFMediaFormat getTrackFormat(int index) {
         _getTrackFormat(ptr, index);
         return null;
     }
@@ -36,7 +36,7 @@ public class DemuxerImpl implements Demuxer {
 
     @Override
     public int readSampleData(ByteBuffer byteBuf, int offset) {
-        return 0;
+        return _readSampleData(ptr, byteBuf, offset);
     }
 
     @Override
@@ -71,6 +71,8 @@ public class DemuxerImpl implements Demuxer {
     private native int _getTrackCount(long ptr);
 
     private native void _getTrackFormat(long ptr, int index);
+
+    public native int _readSampleData(long ptr, ByteBuffer byteBuf, int offset);
 
     private native void _release(long ptr);
 }

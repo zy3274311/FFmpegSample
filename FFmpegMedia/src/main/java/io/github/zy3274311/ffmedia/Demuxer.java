@@ -27,7 +27,7 @@ public interface Demuxer {
 
     public int getTrackCount();
 
-    public Format getTrackFormat(int index);
+    public FFMediaFormat getTrackFormat(int index);
 
     public void selectTrack(int index);
 
