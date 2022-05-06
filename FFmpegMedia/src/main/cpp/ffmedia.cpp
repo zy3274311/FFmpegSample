@@ -15,14 +15,14 @@ Java_io_github_zy3274311_ffmedia_FFMedia_stringFromJNI(JNIEnv *env, jobject thiz
 }
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1setUp(JNIEnv *env, jobject thiz) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1setUp(JNIEnv *env, jobject thiz) {
     auto* demuxer = new FFDemuxer();
     return reinterpret_cast<jlong>(demuxer);
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1setDataSource(JNIEnv *env, jobject thiz,
-                                                                     jlong ptr, jstring url) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1setDataSource(JNIEnv *env, jobject thiz,
+                                                                   jlong ptr, jstring url) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
     jboolean isCopy = JNI_TRUE;
     const char* u = env->GetStringUTFChars(url, &isCopy);
@@ -31,8 +31,8 @@ Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1setDataSource(JNIEnv *env
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1getTrackCount(JNIEnv *env, jobject thiz,
-                                                                     jlong ptr) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1getTrackCount(JNIEnv *env, jobject thiz,
+                                                                   jlong ptr) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
     int c = demuxer->getTrackCount();
     LOGE(FFMEDIA_TAG, "getTrackCount() %d", c);
@@ -40,26 +40,27 @@ Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1getTrackCount(JNIEnv *env
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1release(JNIEnv *env, jobject thiz,
-                                                               jlong ptr) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1release(JNIEnv *env, jobject thiz,
+                                                             jlong ptr) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
     demuxer->free();
     delete demuxer;
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1getTrackFormat(JNIEnv *env, jobject thiz,
-                                                                      jlong ptr, jint index) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1getTrackFormat(JNIEnv *env, jobject thiz,
+                                                                    jlong ptr, jint index) {
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
     demuxer->getTrackFormat(index);
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_io_github_zy3274311_ffmedia_demuxer_DemuxerImpl__1readSampleData(JNIEnv *env, jobject thiz,
-                                                                      jlong ptr,
-                                                                      jobject byte_buf,
-                                                                      jint offset) {
+Java_io_github_zy3274311_ffmedia_demuxer_FFDemuxer__1readSampleData(JNIEnv *env, jobject thiz,
+                                                                    jlong ptr,
+                                                                    jobject byte_buf,
+                                                                    jint offset) {
+    void* buf = env->GetDirectBufferAddress(byte_buf);
+    jlong capacity = env->GetDirectBufferCapacity(byte_buf);
     auto* demuxer = reinterpret_cast<FFDemuxer *>(ptr);
-    return demuxer->readSampleData();;
-
+    return demuxer->readSampleData(buf, capacity);
 }

@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import io.github.zy3274311.ffmedia.Demuxer;
 import io.github.zy3274311.ffmedia.FFMediaFormat;
 
-public class DemuxerImpl implements Demuxer {
+public class FFDemuxer implements Demuxer {
     private final long ptr;
-    public DemuxerImpl() {
+    public FFDemuxer() {
         ptr = _setUp();
     }
 
@@ -36,7 +36,10 @@ public class DemuxerImpl implements Demuxer {
 
     @Override
     public int readSampleData(ByteBuffer byteBuf, int offset) {
-        return _readSampleData(ptr, byteBuf, offset);
+        int size = _readSampleData(ptr, byteBuf, offset);
+        byteBuf.limit(size);
+        byteBuf.rewind();
+        return size;
     }
 
     @Override

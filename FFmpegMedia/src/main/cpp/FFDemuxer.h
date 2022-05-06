@@ -23,7 +23,7 @@ extern "C" {
 
         void getTrackFormat(int index);
 
-        int readSampleData();
+        int readSampleData(void* buf, long capacity);
 
         void free();
     };

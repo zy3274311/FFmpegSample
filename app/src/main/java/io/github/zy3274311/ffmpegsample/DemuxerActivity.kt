@@ -14,13 +14,15 @@ import java.io.File
 import java.nio.ByteBuffer
 
 class DemuxerActivity : AppCompatActivity() {
+    private val http_flv = "http://wliveplay.58cdn.com.cn/live/vHRG1522499169401487361.flv"
+    private val http_mp4 = "http://wos.58cdn.com.cn/gHeDcBazgLk/videotransform/4eacb36946404ee39d96f7d80f33343d.m204.mp4"
     private val demuxer = FFMedia.createDemuxer()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_demuxer)
         findViewById<Button>(R.id.startRead).setOnClickListener {
             lifecycleScope.launch {
-                startRead()
+                readNextFrame()
             }
         }
         lifecycleScope.launch {
@@ -32,24 +34,27 @@ class DemuxerActivity : AppCompatActivity() {
         withContext(Dispatchers.IO) {
             val file = File("/sdcard/1234.mp4")
             val uri = Uri.fromFile(file)
-            demuxer.setDataSource(uri)
-            val trackCount = demuxer.trackCount
-            for (i in 0 until trackCount) {
-                Log.e("zhangying", "i:$i")
-                demuxer.getTrackFormat(i);
-            }
-            Log.e("zhangying", "trackCount:$trackCount")
+            val flvUri = Uri.parse(http_flv)
+            val mp4Uri = Uri.parse(http_mp4)
+
+            demuxer.setDataSource(mp4Uri)
+//            val trackCount = demuxer.trackCount
+//            for (i in 0 until trackCount) {
+//                Log.e("zhangying", "i:$i")
+//                demuxer.getTrackFormat(i);
+//            }
+//            Log.e("zhangying", "trackCount:$trackCount")
         }
     }
 
-    private suspend fun startRead():Int {
+    private suspend fun readNextFrame():Int {
         return withContext(Dispatchers.IO) {
             val capacity = 1024 * 1024 * 2
             val buffer = ByteBuffer.allocateDirect(capacity)
-            while (demuxer.readSampleData(buffer, 0) > 0) {
-                buffer.clear()
-            }
-            1
+            val ret = demuxer.readSampleData(buffer, 0)
+            Log.e("zhangying", "readSampleData:$ret")
+            buffer.clear()
+            ret
         }
     }
 

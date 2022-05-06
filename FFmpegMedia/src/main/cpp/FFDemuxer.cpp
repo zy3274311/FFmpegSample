@@ -5,6 +5,8 @@
 #include "FFDemuxer.h"
 
 void FFDemuxer::setDataSource(const char *url) {
+//    avformat_network_init();
+
     int ret = avformat_open_input(&fmt_ctx, url, nullptr, nullptr);
     if (ret < 0) {
         LOGE(FFMEDIA_TAG, "avformat_open_input code:%d msg:%s", ret, av_err2str(ret));
@@ -84,7 +86,7 @@ void FFDemuxer::getTrackFormat(int index) {
          width, height, format, type, codec_name, profile_name);
 }
 
-int FFDemuxer::readSampleData() {
+int FFDemuxer::readSampleData(void* buf, long capacity) {
     AVPacket *pkt = av_packet_alloc();
     if (!pkt) {
         LOGE(FFMEDIA_TAG, "av_packet_alloc fail");
@@ -97,18 +99,20 @@ int FFDemuxer::readSampleData() {
     LOGE(FFMEDIA_TAG, "av_read_frame dts:%ld", dts);
     int size = pkt->size;
     LOGE(FFMEDIA_TAG, "av_read_frame size:%d", size);
-    av_packet_unref(pkt);
 
+    memcpy(buf, pkt->data, size);
+    av_packet_unref(pkt);
     av_packet_free(&pkt);
 
-    AVFrame *frame = av_frame_alloc();
+//    AVFrame *frame = av_frame_alloc();
 
-    return ret;
+    return size;
 }
 
 void FFDemuxer::free() {
     if(fmt_ctx){
         avformat_close_input(&fmt_ctx);
+//        avformat_network_deinit();
         fmt_ctx = nullptr;
     }
 }
