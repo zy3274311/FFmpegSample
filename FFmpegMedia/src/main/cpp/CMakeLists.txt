@@ -54,7 +54,8 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         ffmedia.cpp
-        FFDemuxer.cpp)
+        FFDemuxer.cpp
+        FFMuxer.cpp)
 
 # add ffmpeg include
 target_include_directories(ffmedia PUBLIC ${FFMPEG_DIR}/include)

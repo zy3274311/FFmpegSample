@@ -14,7 +14,7 @@ import java.io.File
 import java.nio.ByteBuffer
 
 class DemuxerActivity : AppCompatActivity() {
-    private val http_flv = "http://wliveplay.58cdn.com.cn/live/vHRG1522499169401487361.flv"
+    private val http_flv = "http://101.43.226.106:8080/live/livestream.flv"
     private val http_mp4 = "http://wos.58cdn.com.cn/gHeDcBazgLk/videotransform/4eacb36946404ee39d96f7d80f33343d.m204.mp4"
     private val demuxer = FFMedia.createDemuxer()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +37,7 @@ class DemuxerActivity : AppCompatActivity() {
             val flvUri = Uri.parse(http_flv)
             val mp4Uri = Uri.parse(http_mp4)
 
-            demuxer.setDataSource(mp4Uri)
+            demuxer.setDataSource(flvUri)
 //            val trackCount = demuxer.trackCount
 //            for (i in 0 until trackCount) {
 //                Log.e("zhangying", "i:$i")

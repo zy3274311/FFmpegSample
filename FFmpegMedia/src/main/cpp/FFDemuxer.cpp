@@ -9,24 +9,24 @@ void FFDemuxer::setDataSource(const char *url) {
 
     int ret = avformat_open_input(&fmt_ctx, url, nullptr, nullptr);
     if (ret < 0) {
-        LOGE(FFMEDIA_TAG, "avformat_open_input code:%d msg:%s", ret, av_err2str(ret));
+        LOGE(TAG, "avformat_open_input code:%d msg:%s", ret, av_err2str(ret));
         return;
     }
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     if (ret < 0) {
-        LOGE(FFMEDIA_TAG, "avformat_find_stream_info code:%d msg:%s", ret, av_err2str(ret));
+        LOGE(TAG, "avformat_find_stream_info code:%d msg:%s", ret, av_err2str(ret));
         return;
     }
     ret = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
     if (ret < 0) {
-        LOGE(FFMEDIA_TAG, "av_find_best_stream AVMEDIA_TYPE_VIDEO code:%d msg:%s", ret,
+        LOGE(TAG, "av_find_best_stream AVMEDIA_TYPE_VIDEO code:%d msg:%s", ret,
              av_err2str(ret));
         return;
     }
 
     ret = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
     if (ret < 0) {
-        LOGE(FFMEDIA_TAG, "av_find_best_stream AVMEDIA_TYPE_VIDEO code:%d msg:%s", ret,
+        LOGE(TAG, "av_find_best_stream AVMEDIA_TYPE_VIDEO code:%d msg:%s", ret,
              av_err2str(ret));
         return;
     }
@@ -41,10 +41,10 @@ void FFDemuxer::getTrackFormat(int index) {
     AVStream *streams = fmt_ctx->streams[index];
     AVDictionary *metadata = streams->metadata;
     int metadataCount = av_dict_count(metadata);
-    LOGE(FFMEDIA_TAG, "metadataCount:%d", metadataCount);
+    LOGE(TAG, "metadataCount:%d", metadataCount);
     AVDictionaryEntry *entry = nullptr;
     while ((entry = av_dict_get(metadata, "", entry, AV_DICT_IGNORE_SUFFIX)) != nullptr) {
-        LOGE(FFMEDIA_TAG, "av_dict_get key:%s value:%s", entry->key, entry->value);
+        LOGE(TAG, "av_dict_get key:%s value:%s", entry->key, entry->value);
     }
     AVMediaType codec_type = streams->codecpar->codec_type;
     int format = streams->codecpar->format;
@@ -75,7 +75,7 @@ void FFDemuxer::getTrackFormat(int index) {
     const char *type = av_get_media_type_string(codec_type);
     const char *profile_name = avcodec_profile_name(codec_id, profile);
 
-    LOGE(FFMEDIA_TAG,
+    LOGE(TAG,
          "codecpar\n"
          "width:%d \n"
          "height:%d \n"
@@ -89,16 +89,16 @@ void FFDemuxer::getTrackFormat(int index) {
 int FFDemuxer::readSampleData(void* buf, long capacity) {
     AVPacket *pkt = av_packet_alloc();
     if (!pkt) {
-        LOGE(FFMEDIA_TAG, "av_packet_alloc fail");
+        LOGE(TAG, "av_packet_alloc fail");
     }
     int ret = av_read_frame(fmt_ctx, pkt);
-    LOGE(FFMEDIA_TAG, "av_read_frame %d", ret);
+    LOGE(TAG, "av_read_frame %d", ret);
     long pts = pkt->pts;
-    LOGE(FFMEDIA_TAG, "av_read_frame pts:%ld", pts);
+    LOGE(TAG, "av_read_frame pts:%ld", pts);
     long dts = pkt->dts;
-    LOGE(FFMEDIA_TAG, "av_read_frame dts:%ld", dts);
+    LOGE(TAG, "av_read_frame dts:%ld", dts);
     int size = pkt->size;
-    LOGE(FFMEDIA_TAG, "av_read_frame size:%d", size);
+    LOGE(TAG, "av_read_frame size:%d", size);
 
     memcpy(buf, pkt->data, size);
     av_packet_unref(pkt);
@@ -112,6 +112,7 @@ int FFDemuxer::readSampleData(void* buf, long capacity) {
 void FFDemuxer::free() {
     if(fmt_ctx){
         avformat_close_input(&fmt_ctx);
+        avformat_free_context(fmt_ctx);
 //        avformat_network_deinit();
         fmt_ctx = nullptr;
     }

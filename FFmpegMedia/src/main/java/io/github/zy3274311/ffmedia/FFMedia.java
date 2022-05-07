@@ -1,6 +1,7 @@
 package io.github.zy3274311.ffmedia;
 
 import io.github.zy3274311.ffmedia.demuxer.FFDemuxer;
+import io.github.zy3274311.ffmedia.muxer.FFMuxer;
 
 public class FFMedia {
     // Used to load the 'ffmedia' library on application startup.
@@ -16,6 +17,6 @@ public class FFMedia {
     }
 
     public static Muxer createMuxer() {
-        return null;
+        return new FFMuxer();
     }
 }
