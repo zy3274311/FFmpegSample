@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_demuxer.xml" value="0.19610507246376813" />
+        <entry key="webrtcsample/src/main/res/layout/fragment_call.xml" value="0.18489583333333334" />
+        <entry key="webrtcsample/src/main/res/layout/fragment_hud.xml" value="0.18489583333333334" />
+        <entry key="webrtcsample/src/main/res/menu/connect_menu.xml" value="0.18489583333333334" />
+        <entry key="webrtcsample/src/main/res/xml/preferences.xml" value="0.18489583333333334" />
       </map>
     </option>
   </component>

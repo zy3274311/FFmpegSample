@@ -5,6 +5,12 @@
 #include "FFDemuxer.h"
 
 void FFDemuxer::setDataSource(const char *url) {
+    LOGE(TAG, "start FFDemuxer::setDataSource(%s)", url);
+    pthread_t t = pthread_self();
+    int tid = pthread_gettid_np(t);
+    LOGE(TAG, "FFDemuxer::setDataSource() threadId:%d", tid);
+    const char* sectionName = "FFDemuxer::setDataSource";
+    ATrace_beginSection(sectionName);
 //    avformat_network_init();
 
     int ret = avformat_open_input(&fmt_ctx, url, nullptr, nullptr);
@@ -31,6 +37,8 @@ void FFDemuxer::setDataSource(const char *url) {
         return;
     }
     av_dump_format(fmt_ctx, 0, url, 0);
+    ATrace_endSection();
+    LOGE(TAG, "end FFDemuxer::setDataSource(%s)", url);
 }
 
 int FFDemuxer::getTrackCount() {
@@ -87,11 +95,21 @@ void FFDemuxer::getTrackFormat(int index) {
 }
 
 int FFDemuxer::readSampleData(void* buf, long capacity) {
+    LOGE(TAG, "readSampleData start");
+    if(!fmt_ctx){
+        LOGE(TAG, "fmt_ctx fail");
+        return -1;
+    }
     AVPacket *pkt = av_packet_alloc();
     if (!pkt) {
         LOGE(TAG, "av_packet_alloc fail");
+        return -1;
     }
     int ret = av_read_frame(fmt_ctx, pkt);
+    if(ret!=0){
+        LOGE(TAG, "av_read_frame fail");
+        return -1;
+    }
     LOGE(TAG, "av_read_frame %d", ret);
     long pts = pkt->pts;
     LOGE(TAG, "av_read_frame pts:%ld", pts);
@@ -103,13 +121,13 @@ int FFDemuxer::readSampleData(void* buf, long capacity) {
     memcpy(buf, pkt->data, size);
     av_packet_unref(pkt);
     av_packet_free(&pkt);
-
+    LOGE(TAG, "readSampleData end");
 //    AVFrame *frame = av_frame_alloc();
-
     return size;
 }
 
 void FFDemuxer::free() {
+    LOGE(TAG, "FFDemuxer::free()");
     if(fmt_ctx){
         avformat_close_input(&fmt_ctx);
         avformat_free_context(fmt_ctx);

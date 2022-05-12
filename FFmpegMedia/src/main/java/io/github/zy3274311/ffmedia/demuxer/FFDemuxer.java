@@ -37,8 +37,10 @@ public class FFDemuxer implements Demuxer {
     @Override
     public int readSampleData(ByteBuffer byteBuf, int offset) {
         int size = _readSampleData(ptr, byteBuf, offset);
-        byteBuf.limit(size);
-        byteBuf.rewind();
+        if(size>0){
+            byteBuf.limit(size);
+            byteBuf.rewind();
+        }
         return size;
     }
 

@@ -23,25 +23,25 @@ public interface Demuxer {
      */
     public static final int SEEK_TO_CLOSEST_SYNC        = 2;
 
-    public void setDataSource(Uri uri);
+    void setDataSource(Uri uri);
 
-    public int getTrackCount();
+    int getTrackCount();
 
-    public FFMediaFormat getTrackFormat(int index);
+    FFMediaFormat getTrackFormat(int index);
 
-    public void selectTrack(int index);
+    void selectTrack(int index);
 
-    public int readSampleData(ByteBuffer byteBuf, int offset);
+    int readSampleData(ByteBuffer byteBuf, int offset);
 
-    public int getSampleTrackIndex();
+    int getSampleTrackIndex();
 
-    public long getSampleTime();
+    long getSampleTime();
 
-    public boolean advance();
+    boolean advance();
 
-    public void seekTo(long timeUs, @SeekMode int mode);
+    void seekTo(long timeUs, @SeekMode int mode);
 
-    public void release();
+    void release();
 
     @IntDef({
             SEEK_TO_PREVIOUS_SYNC,
@@ -49,5 +49,5 @@ public interface Demuxer {
             SEEK_TO_CLOSEST_SYNC,
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SeekMode {}
+    @interface SeekMode {}
 }

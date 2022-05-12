@@ -3,6 +3,7 @@ package io.github.zy3274311.ffmpegsample
 import android.Manifest.permission.*
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, DemuxerActivity::class.java))
         }
         ActivityCompat.requestPermissions(this, permissions, 0)
+        Log.e("zhangying", "Thread.currentThread().name:${Thread.currentThread().name}")
     }
 
     override fun onRequestPermissionsResult(

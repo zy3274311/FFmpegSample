@@ -7,6 +7,13 @@
 extern "C" {
 #include "libavformat/avformat.h"
 #include "ndk_log.h"
+#include "android/trace.h"
+#include "ScopedTrace.h"
+#include "pthread.h"
+#include "sys/mman.h"
+#include "android/sharedmem.h"
+#include "android/sharedmem_jni.h"
+#include "linux/ashmem.h"
 
     class FFDemuxer {
     private:
