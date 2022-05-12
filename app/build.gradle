@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation project(path: ':FFmpegMedia')
+    implementation project(path: ':webrtcsample')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-beta01'

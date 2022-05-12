@@ -9,6 +9,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import io.github.zy3274311.ffmedia.FFMedia
+import org.appspot.apprtc.CallActivity
+import org.appspot.apprtc.ConnectActivity
+import org.appspot.apprtc.SettingsActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +27,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.hello_tv).text = txt
         findViewById<Button>(R.id.startDemuxerBtn).setOnClickListener {
             startActivity(Intent(this, DemuxerActivity::class.java))
+        }
+        findViewById<Button>(R.id.startWebRtcBtn).setOnClickListener {
+            startActivity(Intent(this, ConnectActivity::class.java))
+        }
+        findViewById<Button>(R.id.startWebRtcSettingsBtn).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
         ActivityCompat.requestPermissions(this, permissions, 0)
         Log.e("zhangying", "Thread.currentThread().name:${Thread.currentThread().name}")
