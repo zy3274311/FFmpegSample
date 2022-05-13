@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, DemuxerActivity::class.java))
         }
         findViewById<Button>(R.id.startWebRtcBtn).setOnClickListener {
-            startActivity(Intent(this, ConnectActivity::class.java))
+            startActivity(Intent(this, WebRtcCallActivity::class.java))
         }
         findViewById<Button>(R.id.startWebRtcSettingsBtn).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))

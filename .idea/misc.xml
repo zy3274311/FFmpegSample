@@ -5,7 +5,9 @@
       <map>
         <entry key="app/src/main/res/layout/activity_demuxer.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1484375" />
+        <entry key="app/src/main/res/layout/activity_webrtc_call.xml" value="0.17447916666666666" />
         <entry key="webrtcsample/src/main/res/layout/activity_call.xml" value="0.1484375" />
+        <entry key="webrtcsample/src/main/res/layout/activity_web_rtc_call.xml" value="0.18125" />
         <entry key="webrtcsample/src/main/res/layout/fragment_call.xml" value="0.18489583333333334" />
         <entry key="webrtcsample/src/main/res/layout/fragment_hud.xml" value="0.18489583333333334" />
         <entry key="webrtcsample/src/main/res/menu/connect_menu.xml" value="0.18489583333333334" />
