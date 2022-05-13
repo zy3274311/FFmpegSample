@@ -42,6 +42,9 @@ dependencies {
     implementation project(path: ':FFmpegMedia')
     implementation project(path: ':webrtcsample')
 
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-beta01'
     implementation 'androidx.activity:activity-ktx:1.4.0'

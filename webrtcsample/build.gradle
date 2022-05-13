@@ -25,6 +25,9 @@ android {
 }
 
 dependencies {
+    //使编码器支持h264
+    api 'com.github.shenbengit:WebRTCExtension:1.0.1'
+
     api 'org.webrtc:google-webrtc:1.0.+'
 //    api 'org.webrtc:google-webrtc:1.0.32006'
 

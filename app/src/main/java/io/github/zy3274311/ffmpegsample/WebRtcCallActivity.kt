@@ -1,12 +1,18 @@
 package io.github.zy3274311.ffmpegsample
 
 import android.content.Context
+import android.media.MediaCodecInfo
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.webrtc.*
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
 
 class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
     CameraVideoCapturer.CameraEventsHandler, CapturerObserver {
@@ -22,6 +28,10 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
     private var videoTrack: VideoTrack? = null
     private var audioTrack: AudioTrack? = null
     private var surfaceTextureHelper: SurfaceTextureHelper? = null
+
+    private val retrofit = generateRetrofit()
+    private val srsWebService = getSrsWebService()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,16 +63,27 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         peerConnection = generatePeerConnection()
         peerConnection?.createOffer(object : SdpObserver {
             /* SdpObserver --------------------------------------------------------- */
-            override fun onCreateSuccess(sdp: SessionDescription?) {
-                if (sdp == null) {
+            override fun onCreateSuccess(offerSdp: SessionDescription?) {
+                if (offerSdp == null) {
                     return
                 }
-                Log.i(TAG, "onCreateSuccess(${sdp.description})")
-                when (sdp.type) {
+                Log.i(TAG, "onCreateSuccess(${offerSdp.description})")
+                when (offerSdp.type) {
                     SessionDescription.Type.OFFER -> {
-                        Handler(Looper.getMainLooper()).post {
-                            peerConnection?.setLocalDescription(MySdpObserver(), sdp)
+                        peerConnection?.setLocalDescription(MySdpObserver(), offerSdp)
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            val body = requestPublish(offerSdp.description)
+                            if (body == null) {
+                                Log.e(TAG, "requestPublish fail")
+                            } else {
+                                Log.e(TAG, "requestPublish success $body")
+                                val remoteSdp = body.sdp
+                                val remoteDescription = convertAnswerSdp(offerSdp.description, remoteSdp)
+                                val answerSdp = SessionDescription(SessionDescription.Type.ANSWER, remoteDescription)
+                                peerConnection?.setRemoteDescription(MySdpObserver(), answerSdp)
+                            }
                         }
+
                     }
                     SessionDescription.Type.ANSWER -> {
 
@@ -87,18 +108,62 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
             }
         }, MediaConstraints())
     }
-    private fun freeRtc() {
 
+    private fun generateRetrofit(): Retrofit {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://101.43.226.106:1985")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit
+    }
+
+    private fun getSrsWebService(): SrsWebService {
+        val srsWebService = retrofit.create(SrsWebService::class.java)
+        return srsWebService
+    }
+
+    private suspend fun requestPublish(sdp: String): SrsPublishResponseBody? {
+        return withContext(Dispatchers.Default) {
+            val body = SrsPublishRequestBody(sdp, getStreamUrl())
+            val call = srsWebService.requestPublish(body)
+            val response = call.execute()
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                val code = response.code()
+                val msg = response.message()
+                null
+            }
+        }
+    }
+
+    private fun getStreamUrl(): String {
+        return "webrtc://101.43.226.106/live/livestream"
     }
 
     private fun generatePeerConnectionFactory(): PeerConnectionFactory {
         val options = PeerConnectionFactory.Options()
-        val videoEncoderFactory =DefaultVideoEncoderFactory(eglBase.eglBaseContext, true, true)
+        val encoderFactory = createCustomVideoEncoderFactory(eglBase.eglBaseContext, true, true,
+            object : VideoEncoderSupportedCallback {
+                override fun isSupportedVp8(info: MediaCodecInfo): Boolean {
+                    return true
+                }
+
+                override fun isSupportedVp9(info: MediaCodecInfo): Boolean {
+                    return true
+                }
+
+                override fun isSupportedH264(info: MediaCodecInfo): Boolean {
+                    return true
+                }
+
+            })
+        val videoEncoderFactory = DefaultVideoEncoderFactory(eglBase.eglBaseContext, false, true)
         val videoDecoderFactory = DefaultVideoDecoderFactory(eglBase.eglBaseContext)
         return PeerConnectionFactory.builder()
             .setOptions(options)
             .setVideoDecoderFactory(videoDecoderFactory)
-            .setVideoEncoderFactory(videoEncoderFactory)
+            .setVideoEncoderFactory(encoderFactory)
             .createPeerConnectionFactory()
     }
 
@@ -143,7 +208,6 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         return peerConnection
     }
 
-
     private fun createAudioConstraints(): MediaConstraints {
         val audioConstraints = MediaConstraints()
         //回声消除
@@ -185,6 +249,53 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         }
         return null
     }
+
+    /**
+     * 转换AnswerSdp
+     * @param offerSdp offerSdp：创建offer时生成的sdp
+     * @param answerSdp answerSdp：网络请求srs服务器返回的sdp
+     * @return 转换后的AnswerSdp
+     */
+    private fun convertAnswerSdp(offerSdp: String, answerSdp: String?): String {
+        if (answerSdp.isNullOrBlank()) {
+            return ""
+        }
+        val indexOfOfferVideo = offerSdp.indexOf("m=video")
+        val indexOfOfferAudio = offerSdp.indexOf("m=audio")
+        if (indexOfOfferVideo == -1 || indexOfOfferAudio == -1) {
+            return answerSdp
+        }
+        val indexOfAnswerVideo = answerSdp.indexOf("m=video")
+        val indexOfAnswerAudio = answerSdp.indexOf("m=audio")
+        if (indexOfAnswerVideo == -1 || indexOfAnswerAudio == -1) {
+            return answerSdp
+        }
+
+        val isFirstOfferVideo = indexOfOfferVideo < indexOfOfferAudio
+        val isFirstAnswerVideo = indexOfAnswerVideo < indexOfAnswerAudio
+        return if (isFirstOfferVideo == isFirstAnswerVideo) {
+            //顺序一致
+            answerSdp
+        } else {
+            //需要调换顺序
+            buildString {
+                append(answerSdp.substring(0, indexOfAnswerVideo.coerceAtMost(indexOfAnswerAudio)))
+                append(
+                    answerSdp.substring(
+                        indexOfAnswerVideo.coerceAtLeast(indexOfOfferVideo),
+                        answerSdp.length
+                    )
+                )
+                append(
+                    answerSdp.substring(
+                        indexOfAnswerVideo.coerceAtMost(indexOfAnswerAudio),
+                        indexOfAnswerVideo.coerceAtLeast(indexOfOfferVideo)
+                    )
+                )
+            }
+        }
+    }
+
 
     /* PeerConnection.Observer --------------------------------------------------------- */
     override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
