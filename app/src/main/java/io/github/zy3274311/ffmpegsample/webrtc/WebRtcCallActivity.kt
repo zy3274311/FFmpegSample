@@ -1,11 +1,13 @@
-package io.github.zy3274311.ffmpegsample
+package io.github.zy3274311.ffmpegsample.webrtc
 
 import android.content.Context
 import android.media.MediaCodecInfo
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import io.github.zy3274311.ffmpegsample.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +33,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
 
     private val retrofit = generateRetrofit()
     private val srsWebService = getSrsWebService()
+    private val videoSinkProxy = ProxyVideoSink()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +47,11 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         )
         localSurfaceView = findViewById(R.id.local_surface)
         localSurfaceView?.init(eglBase.eglBaseContext, null)
+        videoSinkProxy.setTarget(localSurfaceView)
+
+        findViewById<Button>(R.id.switchCameraBtn).setOnClickListener {
+            videoCapturer?.switchCamera(null)
+        }
 
         initRTC()
     }
@@ -77,6 +85,10 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
                                 Log.e(TAG, "requestPublish fail")
                             } else {
                                 Log.e(TAG, "requestPublish success $body")
+                                // offer sdp中m=xxx和answer sdp中m=xxx顺序不对，大概意思就是 offer sdp 中比如第一个顺序是m=video，但是answer sdp 中第一个是m=audio ；
+                                // https://www.jianshu.com/p/f37009f625f9
+//                                val remoteSessionDescription = SessionDescription(SessionDescription.Type.ANSWER, body.sdp)
+//                                peerConnection?.setRemoteDescription(MySdpObserver(), remoteSessionDescription)
                                 val remoteSdp = body.sdp
                                 val remoteDescription = convertAnswerSdp(offerSdp.description, remoteSdp)
                                 val answerSdp = SessionDescription(SessionDescription.Type.ANSWER, remoteDescription)
@@ -179,7 +191,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
             val videoSource = factory.createVideoSource(capture.isScreencast)
             val vTrack = factory.createVideoTrack("local_video_track", videoSource)
                 .apply {
-                    addSink(localSurfaceView)
+                    addSink(videoSinkProxy)
                 }
             videoTrack = vTrack
             val surfaceHelper =
@@ -315,7 +327,8 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
     }
 
     override fun onIceCandidate(p0: IceCandidate?) {
-        Log.i(TAG, "onIceCandidate($p0)")
+        Log.e(TAG, "onIceCandidate(${p0?.toString()})")
+
     }
 
     override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {
@@ -378,6 +391,25 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
 
     override fun onFrameCaptured(p0: VideoFrame?) {
 //        Log.i(TAG, "onFrameCaptured($p0)")
+    }
+
+    private class ProxyVideoSink : VideoSink {
+        private var target: VideoSink? = null
+
+        @Synchronized
+        override fun onFrame(frame: VideoFrame) {
+            if (target == null) {
+                Log.e(TAG, "ProxyVideoSink tartget is null")
+                return
+            }
+            Log.e(TAG, "ProxyVideoSink onFrame($frame)")
+            target?.onFrame(frame)
+        }
+
+        @Synchronized
+        fun setTarget(target: VideoSink?) {
+            this.target = target
+        }
     }
 
 }

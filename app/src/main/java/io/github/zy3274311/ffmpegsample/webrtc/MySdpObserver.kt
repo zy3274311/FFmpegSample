@@ -1,10 +1,10 @@
-package io.github.zy3274311.ffmpegsample
+package io.github.zy3274311.ffmpegsample.webrtc
 
 import android.util.Log
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 
-class MySdpObserver : SdpObserver {
+open class MySdpObserver : SdpObserver {
     companion object {
         private const val TAG = "MySdpObserver"
     }

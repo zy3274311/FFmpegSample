@@ -9,8 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import io.github.zy3274311.ffmedia.FFMedia
-import org.appspot.apprtc.CallActivity
-import org.appspot.apprtc.ConnectActivity
+import io.github.zy3274311.ffmpegsample.webrtc.WebRtcCallActivity
 import org.appspot.apprtc.SettingsActivity
 
 

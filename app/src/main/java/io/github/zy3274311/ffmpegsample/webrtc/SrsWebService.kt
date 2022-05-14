@@ -1,4 +1,4 @@
-package io.github.zy3274311.ffmpegsample
+package io.github.zy3274311.ffmpegsample.webrtc
 
 import retrofit2.Call
 import retrofit2.http.Body
