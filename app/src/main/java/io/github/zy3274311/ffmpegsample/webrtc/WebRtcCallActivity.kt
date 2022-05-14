@@ -39,12 +39,12 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webrtc_call)
-        PeerConnectionFactory.initialize(
-            PeerConnectionFactory
-                .InitializationOptions
-                .builder(applicationContext)
-                .createInitializationOptions()
-        )
+        val options = PeerConnectionFactory
+            .InitializationOptions
+            .builder(applicationContext)
+            .createInitializationOptions()
+        PeerConnectionFactory.initialize(options)
+
         localSurfaceView = findViewById(R.id.local_surface)
         localSurfaceView?.init(eglBase.eglBaseContext, null)
         videoSinkProxy.setTarget(localSurfaceView)
@@ -170,7 +170,12 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
                 }
 
             })
-        val videoEncoderFactory = DefaultVideoEncoderFactory(eglBase.eglBaseContext, false, true)
+        // webrtc只允许固定几个硬件编码器支持h264编码
+        // name.startsWith("OMX.qcom.")或者name.startsWith("OMX.Exynos.")
+        // 没有匹配的编码器导致remote sdp获取失败
+//        val videoEncoderFactory = DefaultVideoEncoderFactory(eglBase.eglBaseContext, true, true)
+//        val hardwareVideoEncoderFactory = HardwareVideoEncoderFactory(eglBase.eglBaseContext, true, true)
+//        val softwareVideoEncoderFactory = SoftwareVideoEncoderFactory()
         val videoDecoderFactory = DefaultVideoDecoderFactory(eglBase.eglBaseContext)
         return PeerConnectionFactory.builder()
             .setOptions(options)
@@ -185,6 +190,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         val createAudioSource = factory.createAudioSource(createAudioConstraints())
         val aTrack = factory.createAudioTrack("local_audio_track", createAudioSource)
         audioTrack = aTrack
+
         val cameraVideoCapturer = createVideoCapture(applicationContext)
         videoCapturer = cameraVideoCapturer
         cameraVideoCapturer?.let { capture ->
@@ -207,6 +213,14 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
 
         val peerConnection = factory.createPeerConnection(rtcConfig, this)
+//        val mediaStream = factory.createLocalMediaStream("local mediastream")
+//        mediaStream.addTrack(videoTrack)
+//        mediaStream.addTrack(audioTrack)
+//        peerConnection?.addStream(mediaStream)
+
+//        peerConnection?.addTrack(videoTrack)
+//        peerConnection?.addTrack(audioTrack)
+
         peerConnection?.apply {
             addTransceiver(
                 videoTrack,
@@ -390,7 +404,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
     }
 
     override fun onFrameCaptured(p0: VideoFrame?) {
-//        Log.i(TAG, "onFrameCaptured($p0)")
+        Log.i(TAG, "onFrameCaptured($p0)")
     }
 
     private class ProxyVideoSink : VideoSink {
@@ -402,7 +416,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
                 Log.e(TAG, "ProxyVideoSink tartget is null")
                 return
             }
-            Log.e(TAG, "ProxyVideoSink onFrame($frame)")
+            Log.e(TAG, "ProxyVideoSink onFrame(${frame.buffer})")
             target?.onFrame(frame)
         }
 
