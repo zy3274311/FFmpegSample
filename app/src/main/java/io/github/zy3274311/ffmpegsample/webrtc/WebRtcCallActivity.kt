@@ -52,7 +52,12 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         findViewById<Button>(R.id.switchCameraBtn).setOnClickListener {
             videoCapturer?.switchCamera(null)
         }
-
+        findViewById<Button>(R.id.joinSessionBtn).setOnClickListener {
+            joinSession()
+        }
+        findViewById<Button>(R.id.leaveSessionBtn).setOnClickListener {
+            leaveSession()
+        }
         initRTC()
     }
 
@@ -67,6 +72,12 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         peerConnectionFactory?.dispose()
     }
 
+    private fun joinSession(){
+    }
+
+    private fun leaveSession() {
+    }
+
     private fun initRTC() {
         peerConnection = generatePeerConnection()
         peerConnection?.createOffer(object : SdpObserver {
@@ -78,7 +89,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
                 Log.i(TAG, "onCreateSuccess(${offerSdp.description})")
                 when (offerSdp.type) {
                     SessionDescription.Type.OFFER -> {
-                        peerConnection?.setLocalDescription(MySdpObserver(), offerSdp)
+                        peerConnection?.setLocalDescription(MySdpObserver("Local SdpObserver"), offerSdp)
                         lifecycleScope.launch(Dispatchers.Main) {
                             val body = requestPublish(offerSdp.description)
                             if (body == null) {
@@ -91,11 +102,10 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
 //                                peerConnection?.setRemoteDescription(MySdpObserver(), remoteSessionDescription)
                                 val remoteSdp = body.sdp
                                 val remoteDescription = convertAnswerSdp(offerSdp.description, remoteSdp)
-                                val answerSdp = SessionDescription(SessionDescription.Type.ANSWER, remoteDescription)
-                                peerConnection?.setRemoteDescription(MySdpObserver(), answerSdp)
+                                val remoteSessionDescription = SessionDescription(SessionDescription.Type.ANSWER, remoteDescription)
+                                peerConnection?.setRemoteDescription(MySdpObserver("Remote SdpObserver"), remoteSessionDescription)
                             }
                         }
-
                     }
                     SessionDescription.Type.ANSWER -> {
 
@@ -407,6 +417,26 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
         Log.i(TAG, "onFrameCaptured($p0)")
     }
 
+    override fun onStandardizedIceConnectionChange(newState: PeerConnection.IceConnectionState?) {
+        super.onStandardizedIceConnectionChange(newState)
+        Log.i(TAG, "onStandardizedIceConnectionChange($newState)")
+    }
+
+    override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
+        super.onConnectionChange(newState)
+        Log.i(TAG, "onConnectionChange($newState)")
+    }
+
+    override fun onSelectedCandidatePairChanged(event: CandidatePairChangeEvent?) {
+        super.onSelectedCandidatePairChanged(event)
+        Log.i(TAG, "onSelectedCandidatePairChanged(local:${event?.local}, remote:${event?.remote})")
+    }
+
+    override fun onTrack(transceiver: RtpTransceiver?) {
+        super.onTrack(transceiver)
+        Log.i(TAG, "onTrack($transceiver)")
+    }
+
     private class ProxyVideoSink : VideoSink {
         private var target: VideoSink? = null
 
@@ -416,7 +446,7 @@ class WebRtcCallActivity : AppCompatActivity(), PeerConnection.Observer,
                 Log.e(TAG, "ProxyVideoSink tartget is null")
                 return
             }
-            Log.e(TAG, "ProxyVideoSink onFrame(${frame.buffer})")
+//            Log.e(TAG, "ProxyVideoSink onFrame(${frame.buffer})")
             target?.onFrame(frame)
         }
 

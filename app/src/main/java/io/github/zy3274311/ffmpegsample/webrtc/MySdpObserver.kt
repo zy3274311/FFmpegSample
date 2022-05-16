@@ -4,10 +4,8 @@ import android.util.Log
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 
-open class MySdpObserver : SdpObserver {
-    companion object {
-        private const val TAG = "MySdpObserver"
-    }
+open class MySdpObserver(label:String) : SdpObserver {
+    private val TAG = label
 
     override fun onCreateSuccess(sdp: SessionDescription?) {
         Log.i(TAG, "onCreateSuccess(${sdp?.description})")
